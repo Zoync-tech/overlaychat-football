@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OverlayChat Desktop</title>
+    <link rel="stylesheet" href="./control.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="app-header">
+        <div class="header-main">
+          <div class="header-content">
+            <span class="badge">Desktop</span>
+            <h1>Overlay Executive</h1>
+            <p>Control the broadcast overlay in real-time.</p>
+          </div>
+
+          <div class="header-controls">
+            <button id="mainViewHistoryBtn" class="action-btn pill">
+              <span class="btn-icon">📚</span>
+              View Match History
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <section class="panel-group">
+          <h2 class="group-title">Match Configuration</h2>
+          <div class="glass-card">
+            <div style="display:flex; justify-content:flex-end; margin-bottom: 12px;">
+              <button id="loadTodayMatch" class="action-btn pill small" type="button">🤖 Load Today's Match</button>
+            </div>
+            <form id="settingsForm" class="stack">
+              <div class="form-row">
+                <label for="roomId">Room Identity</label>
+                <input id="roomId" name="roomId" maxlength="40" placeholder="e.g. ipl" required />
+              </div>
+
+              <div class="form-row">
+                <label for="matchTitle">Broadcast Title</label>
+                <input id="matchTitle" name="matchTitle" maxlength="60" placeholder="Match #001" required />
+              </div>
+
+              <div class="dual-row">
+                <div class="form-row">
+                  <label for="teamA">Home Team</label>
+                  <input id="teamA" name="teamA" maxlength="30" placeholder="Team A" required />
+                </div>
+                <div class="form-row">
+                  <label for="teamB">Away Team</label>
+                  <input id="teamB" name="teamB" maxlength="30" placeholder="Team B" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label class="toggle-row">
+                  <span>Allow re-prediction</span>
+                  <input type="checkbox" id="allowReprediction" class="toggle-input" />
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+
+              <div class="form-row">
+                <label class="toggle-row" title="When ON, all cloud automated polling and resolving will stop for this room, giving you full manual control.">
+                  <span style="color: var(--accent);">Cloud Bot Override (Pause Automation)</span>
+                  <input type="checkbox" id="automationPaused" class="toggle-input" />
+                  <div class="toggle-track"></div>
+                </label>
+              </div>
+
+
+              <div class="form-row">
+                <label>Batting Team (Active Predictions)</label>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="battingA" name="battingTeam" value="home" checked />
+                    <label class="radio-label" for="battingA" id="labelBattingA">Home Team</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="battingB" name="battingTeam" value="away" />
+                    <label class="radio-label" for="battingB" id="labelBattingB">Away Team</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label>Current Innings</label>
+                <div class="radio-group" id="inningsGroup">
+                  <div class="radio-option">
+                    <input type="radio" id="innings1st" name="innings" value="1" checked />
+                    <label class="radio-label" for="innings1st">1st Innings</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="innings2nd" name="innings" value="2" />
+                    <label class="radio-label" for="innings2nd">2nd Innings</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label>Audience Access</label>
+                <div class="input-action-group">
+                  <input id="audienceUrl" readonly />
+                  <button id="copyAudienceUrl" class="action-btn" type="button">Copy</button>
+                </div>
+              </div>
+
+              <button class="primary-btn wide-btn" type="submit">Deploy Changes</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="panel-group">
+          <h2 class="group-title" id="resSectionTitle">Match Resolution</h2>
+          <div class="glass-card stack">
+            <div id="resolution1st">
+              <div class="form-row">
+                <label for="actualScore">Actual 1st Innings Score</label>
+                <input type="number" id="actualScore" placeholder="e.g. 158" min="1" max="999" />
+              </div>
+            </div>
+            
+            <div id="resolution2nd" class="hidden">
+              <div class="form-row">
+                <label id="labelChaserWon" for="chaserWonYes">Did Chasing Team win?</label>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="chaserWonYes" name="chaserWon" value="yes" />
+                    <label class="radio-label" for="chaserWonYes">Yes</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="chaserWonNo" name="chaserWon" value="no" checked />
+                    <label class="radio-label" for="chaserWonNo">No</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label id="labelActualResult" for="actualResult">Actual Result (Overs/Score)</label>
+                <input type="number" id="actualResult" placeholder="e.g. 15.2 or 145" step="any" min="0" />
+              </div>
+            </div>
+
+            <div class="input-action-group">
+              <button id="calculatePoints" class="primary-btn">Resolve & View Rankings</button>
+              <button id="viewFinalStandings" class="action-btn">View Final Game Standings</button>
+            </div>
+            <p class="panel-note">Resolve the current innings to archive points and prepare for the final report.</p>
+          </div>
+        </section>
+
+        <section class="panel-group">
+          <h2 class="group-title">Live Win Probability (Google)</h2>
+          <div class="glass-card stack">
+            <div class="form-row">
+              <label for="googleMatchUrl">Google Match URL</label>
+              <div class="input-action-group">
+                <input type="text" id="googleMatchUrl" placeholder="Paste Google URL here..." />
+                <button id="fetchNowBtn" class="action-btn">Fetch Now</button>
+              </div>
+              <div class="form-row items-center gap-2" style="margin-top: 8px;">
+                <span id="fetchStatus" class="panel-note" style="margin-top: 0;">Status: Not started</span>
+                <button id="viewDebugBtn" class="glass-btn small" title="View screenshot of what the scraper sees" style="padding: 4px 8px; font-size: 10px;">View Debug</button>
+                <button id="solveCaptchaBtn" class="action-btn small" title="Solve Google CAPTCHA" style="padding: 4px 8px; font-size: 10px;">Solve CAPTCHA</button>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <label class="toggle-row">
+                <span>Auto-Fetch (30s)</span>
+                <input type="checkbox" id="autoFetchWinProb" class="toggle-input" />
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+
+            <div class="form-row">
+              <label class="toggle-row">
+                <span>Show on Overlay</span>
+                <input type="checkbox" id="showWinProb" class="toggle-input" />
+                <div class="toggle-track"></div>
+              </label>
+            </div>
+
+            <div class="divider"></div>
+            
+            <div class="control-row">
+
+            </div>
+            
+            <p class="panel-note">Slider updates automatically if Auto-Fetch is on. You can also slide it manually to override.</p>
+          </div>
+        </section>
+
+        <section class="panel-group">
+          <h2 class="group-title">Window & Engine</h2>
+          <div class="glass-card stack">
+            <div class="control-row">
+              <label>Master Opacity</label>
+              <div class="slider-group">
+                <input id="opacity" type="range" min="0.2" max="1" step="0.05" />
+                <span id="opacityValue" class="value-tag">100%</span>
+              </div>
+            </div>
+
+            <div class="action-grid">
+              <button id="showOverlay" class="glass-btn">Show</button>
+              <button id="hideOverlay" class="glass-btn">Hide</button>
+              <button id="reloadOverlay" class="glass-btn">Reload</button>
+              <button id="resetBounds" class="glass-btn">Reset</button>
+            </div>
+
+            <div class="control-row">
+              <label>Ticker Overlay</label>
+              <div class="action-grid">
+                <button id="showTicker" class="glass-btn">Show Ticker</button>
+                <button id="hideTicker" class="glass-btn">Hide Ticker</button>
+                <button id="reloadTicker" class="glass-btn">Reload</button>
+                <button id="resetTickerBounds" class="glass-btn">Reset Ticker</button>
+              </div>
+            </div>
+
+            <button id="togglePredictionPause" class="secondary-btn wide-btn">
+              Pause Predictions
+            </button>
+            <button id="toggleSortMode" class="secondary-btn wide-btn">
+              Sort by Newest
+            </button>
+            <button id="toggleHideChat" class="secondary-btn wide-btn">
+              Hide Live Chat
+            </button>
+            <button id="toggleHideJoin" class="secondary-btn wide-btn">
+              Hide Join Section
+            </button>
+
+            <div class="divider"></div>
+            <div class="action-grid" style="margin-top: 12px;">
+              <button id="clearPredictions" class="glass-btn danger">Clear Predictions</button>
+              <button id="clearChat" class="glass-btn danger">Clear Chat</button>
+            </div>
+          </div>
+
+          <h2 class="group-title">GIF Reactions</h2>
+          <div class="glass-card stack">
+            <div class="control-row">
+              <label>Reaction Opacity</label>
+              <div class="slider-group">
+                <input id="reactionOpacity" type="range" min="0" max="1" step="0.05" />
+                <span id="reactionOpacityValue" class="value-tag">100%</span>
+              </div>
+            </div>
+            <p class="section-hint">Control the reaction window for Klipy GIFs.</p>
+            <div class="action-grid">
+              <button id="showReaction" class="glass-btn primary">Show Window</button>
+              <button id="hideReaction" class="glass-btn secondary">Hide Window</button>
+              <button id="reloadReaction" class="glass-btn secondary">Reload</button>
+              <button id="resetReactionBounds" class="glass-btn secondary">Reset Pos</button>
+              <button id="clearReactions" class="glass-btn danger">Clear Reactions</button>
+            </div>
+          </div>
+
+          <div class="status-panel">
+            <div class="status-item">
+              <span class="dot" id="dotOverlay"></span>
+              <span class="label">Visibility</span>
+              <span class="value" id="overlayStatus">--</span>
+            </div>
+            <div class="status-item">
+              <span class="dot" id="dotInteractivity"></span>
+              <span class="label">Interaction</span>
+              <span class="value" id="clickThroughStatus">--</span>
+            </div>
+            <div class="status-item">
+              <span class="dot" id="dotPredictions"></span>
+              <span class="label">Predictions</span>
+              <span class="value" id="predictionPauseStatus">--</span>
+            </div>
+            <div class="status-item">
+              <span class="dot" id="dotSort"></span>
+              <span class="label">Sort Priority</span>
+              <span class="value" id="sortStatus">--</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Results Dashboard Overlay -->
+    <div id="resultsDashboard" class="results-overlay hidden">
+      <div class="results-content glass-card">
+        <header class="results-header">
+          <div>
+            <span class="badge">Ranking Results</span>
+            <h2 id="resultsTitle">Innings Leaderboard</h2>
+          </div>
+          <button id="closeResults" class="close-btn">&times;</button>
+        </header>
+
+        <div class="results-stats">
+          <div class="stat-pill">
+            Actual Score: <strong id="resActualScore">---</strong>
+          </div>
+        </div>
+
+        <div class="results-table-container">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Guess</th>
+                <th>Diff</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <!-- Result rows will be injected here -->
+            </tbody>
+          </table>
+        </div>
+
+        <footer class="results-footer">
+          <div class="footer-actions">
+            <button id="exportCsv" class="secondary-btn">Export to CSV</button>
+            <button id="clearAndPrep2nd" class="primary-btn">Prep 2nd Innings</button>
+          </div>
+          <p class="footer-note">Prep handles archiving 1st innings and switching teams for you.</p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Overall Standings Dashboard (Overlay) -->
+    <div id="overallDashboard" class="results-overlay hidden">
+      <div class="results-card glass-card">
+        <header class="results-header">
+          <div>
+            <span class="badge">Match Conclusion</span>
+            <h2 id="overallHeader">Final Match Report</h2>
+          </div>
+          <button id="closeOverall" class="close-btn">&times;</button>
+        </header>
+
+        <div class="results-summary">
+          <div class="summary-item">
+            <label>Tournament Scoreboard</label>
+            <span id="overallMatchTitle">Loading Game Stats...</span>
+          </div>
+        </div>
+
+        <div class="results-table-container">
+          <table class="results-table overall-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>1st Innings</th>
+                <th>2nd Innings</th>
+                <th>Penalty</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="overallBody"></tbody>
+          </table>
+        </div>
+
+        <footer class="results-footer">
+          <div class="footer-actions">
+            <button id="exportOverallCsv" class="secondary-btn">Export Full Match CSV</button>
+            <button id="endMatch" class="danger-btn">End Match & Archive Data</button>
+          </div>
+          <p class="footer-note">Ending the match will archive current standings to history and clear the live room for a new game.</p>
+        </footer>
+      </div>
+    </div>
+
+    <!-- History Dashboard Overlay -->
+    <div id="historyDashboard" class="results-overlay hidden">
+      <div class="history-content glass-card">
+        <header class="results-header">
+          <div>
+            <span class="badge">Match Archive</span>
+            <h2 id="historyTitle">Daily Breakdowns</h2>
+          </div>
+          <div class="header-actions">
+            <button id="showManualEntry" class="primary-btn small">Add Manual Entry</button>
+            <button id="closeHistory" class="close-btn">&times;</button>
+          </div>
+        </header>
+
+        <div class="history-layout">
+          <aside class="history-sidebar">
+            <div class="sidebar-label">Overviews</div>
+            <div class="match-list" style="margin-bottom:20px;">
+              <div class="match-item active season-stats-item" onclick="window.showSeasonStats()" id="item-season-stats">
+                <label>Archive Total</label>
+                <span>🏆 Season Standings</span>
+              </div>
+            </div>
+
+            <div class="sidebar-label">Daily Matches</div>
+            <div id="matchList" class="match-list">
+              <!-- Matches will be listed here -->
+            </div>
+          </aside>
+
+          <main id="matchDetail" class="history-detail">
+            <!-- Content will be injected here: Leaderboard or Match Detail -->
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Match Entry Dashboard -->
+    <div id="manualEntryDashboard" class="results-overlay hidden">
+      <div class="history-content glass-card manual-entry-content">
+        <header class="results-header">
+          <div>
+            <span class="badge warning">Admin Tool</span>
+            <h2>Manual Match Resolve</h2>
+          </div>
+          <button id="closeManualEntry" class="close-btn">&times;</button>
+        </header>
+
+        <div class="manual-layout stack">
+          <!-- Match Setup Section -->
+          <div class="manual-section glass-card">
+            <div class="section-hint">Match Setup & Actual Results</div>
+            <div class="dual-row">
+              <div class="form-row">
+                <label>Date</label>
+                <input type="date" id="manualDate" />
+              </div>
+              <div class="form-row">
+                <label>Match Title</label>
+                <input type="text" id="manualTitle" placeholder="#RCBvsSRH" />
+              </div>
+            </div>
+            <div class="dual-row" style="margin-top:12px;">
+              <div class="form-row">
+                <label>Team A (Home)</label>
+                <input type="text" id="manualTeamA" placeholder="RCB" />
+              </div>
+              <div class="form-row">
+                <label>Team B (Away)</label>
+                <input type="text" id="manualTeamB" placeholder="SRH" />
+              </div>
+            </div>
+            <div class="divider" style="margin:20px 0;"></div>
+            <div class="dual-row">
+              <div class="form-row">
+                <label>Actual 1st Inn Score</label>
+                <input type="number" id="manualActual1st" placeholder="e.g. 201" />
+              </div>
+              <div class="form-row">
+                <label>Actual Winner</label>
+                <div class="radio-group">
+                  <div class="radio-option">
+                    <input type="radio" id="manWinA" name="manualWinner" value="a" checked />
+                    <label class="radio-label small" for="manWinA" id="manWinALabel">Team A</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="manWinB" name="manualWinner" value="b" />
+                    <label class="radio-label small" for="manWinB" id="manWinBLabel">Team B</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row" style="margin-top:12px;">
+              <label>Actual 2nd Inn Result (Score or Overs)</label>
+              <input type="text" id="manualActual2nd" placeholder="e.g. 15.4 or 145" />
+            </div>
+          </div>
+
+          <!-- Player Entry Section -->
+          <div class="manual-section glass-card">
+            <div class="stats-header">
+              <div class="section-hint">Player Predictions</div>
+              <button id="addManualRow" class="action-btn small">Add Player Row</button>
+            </div>
+            <div class="results-table-container" style="flex:1;">
+              <table class="results-table mini-table" id="manualPlayersTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>1st Inn Guess</th>
+                    <th>1st Winner</th>
+                    <th>2nd Inn Guess</th>
+                    <th>2nd Winner</th>
+                    <th>Auto-Points</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="manualPlayersBody">
+                  <!-- Rows injected here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <footer class="results-footer">
+          <div class="footer-actions">
+            <button id="cancelManualSave" class="secondary-btn">Cancel</button>
+            <button id="saveManualMatch" class="primary-btn">Calculate & Archive Match</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Edit Historical Match Modal -->
+  <div id="editMatchModal" class="modal hidden">
+    <div class="modal-content manual-entry-content">
+      <div class="manual-layout" style="max-width: 600px; margin: 0 auto;">
+        <div class="manual-header">
+          <h2 style="margin:0;">Edit Match Results</h2>
+          <p style="color:var(--text-muted); font-size:12px; margin:5px 0 0 0;">Updating results will recalculate all player points for this match.</p>
+        </div>
+        
+        <div class="manual-form-grid" style="grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+          <div class="form-group" style="grid-column: span 2;">
+            <label>Match Title</label>
+            <input type="text" id="editMatchTitle" placeholder="#SRHvsRCB" />
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="editMatchDate" />
+          </div>
+          <div class="form-group">
+            <label>Actual 1st Innings Score</label>
+            <input type="number" id="editActual1st" placeholder="e.g. 185" />
+          </div>
+          <div class="form-group">
+            <label>Team A Name</label>
+            <input type="text" id="editTeamA" placeholder="Team A" />
+          </div>
+          <div class="form-group">
+            <label>Team B Name</label>
+            <input type="text" id="editTeamB" placeholder="Team B" />
+          </div>
+          <div class="form-group">
+            <label>Actual 2nd Innings Result</label>
+            <input type="text" id="editActual2nd" placeholder="e.g. 18.2 or 165" />
+          </div>
+          <div class="form-group">
+            <label>Actual Winner</label>
+            <div style="display:flex; gap:15px; margin-top:5px;">
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="radio" name="editWinner" value="a" id="editWinRadioA"> <span id="editLabelA">Team A</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="radio" name="editWinner" value="b" id="editWinRadioB"> <span id="editLabelB">Team B</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="manual-actions" style="margin-top:25px; display:flex; justify-content:flex-end; gap:10px;">
+          <button id="cancelEditMatch" class="secondary-btn">Cancel</button>
+          <button id="saveEditMatch" class="primary-btn">Save & Recalculate</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
+    <script type="module" src="./control.js"></script>
+  </body>
+</html>

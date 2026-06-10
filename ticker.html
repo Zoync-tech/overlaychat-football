@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> </title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <style>
+      /* Override any page shell styles for the ticker window */
+      html, body {
+        background: transparent !important;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body class="desktop-embed">
+    <main class="ticker-shell">
+      <div class="ticker-handle" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="9" cy="9" r="1.5"/>
+          <circle cx="15" cy="9" r="1.5"/>
+          <circle cx="9" cy="15" r="1.5"/>
+          <circle cx="15" cy="15" r="1.5"/>
+        </svg>
+      </div>
+      <div id="tickerStats" class="ticker-stats">
+        <!-- Static stats will be injected here -->
+        <span>USA 0% vs MEX 0%</span>
+      </div>
+      <div class="ticker-container">
+        <div id="tickerContent" class="ticker-content">
+          <!-- Ticker items will be injected here -->
+          <span class="ticker-item meta">
+            <span class="ticker-badge">Live</span>
+            <span>Initializing Ticker...</span>
+          </span>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="./assets/ticker.js"></script>
+  </body>
+</html>

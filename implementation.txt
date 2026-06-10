@@ -1,0 +1,54 @@
+~remove undefined values in UI
+~some way to graph once we know the final score, each person's score should be inversly proportional to the difference between the final score and their score 
+~Ticker overlay option 
+~some way to export data to csv/json
+~2nd innings, if the prediction of the winning team is the chasing side, then accept float values with .0, .1, .2, .3, .4 or .5 as the decimal part and the int part betweren 0 to 20.0
+~Leaderboard over a game (2 inns)
+~Leaderboard over a period of time
+~color of UI based on team color : MI(#1E1E1E), CSK(#F44336), RCB(#2196F3), KKR(#4CAF50), SRH(#FF9800), PBKS(#F44336), DC(#2196F3), RR(#2196F3), GT(#2196F3), LSG(#2196F3) gradient between  home/away team
+~sort by score 
+~add google prediction % probability
+~discord notification
+~ gif overlay
+- timed predictions (powerplay score, 16-20 score, number of wickets in x overs defined by admin as per game)
+~ way to add predictions for prev games
+
+ allow people to make 1st innings predictions for both teams before the toss for each game
+
+
+ Before the match starts, we should not be able to see other people's predictions
+ After the match starts, we should be able to see other people's predictions, but only after you make your prediction
+Pre-match / Innings Break: 0 pts. (Encourages early participation).
+First Over (0.1 - 1.0): -5 pts.
+Second Over (1.1 - 2.0): -10 pts.
+Third Over (2.1 - 3.0): -15 pts.
+After 3.0 Overs: Predictions are locked anyway (as per your current logic).
+Every prediction update or change, not stacked w/ the above, this is only applicable for update
+First Over (0.1 - 1.0): -5 pts.
+Second Over (1.1 - 2.0): -15 pts.
+Third Over (2.1 - 3.0): -30 pts.
+If prediction changes the team winner -20 flat for either innings
+
+also stack change penalty 
+these penalties should be visible to the user when they are updating their prediction
+
+audience.js update prediction should have caution with warning for penalty, making sure user says yes as a confirmation
+Timestamp/State Tracking is only for currentongoing match, we wont store this in db later
+
+
+
+Once 1st innings predictions are locked i.e. after >=3.0 overs, let users enter 2nd innings predictions already with a 2nd innings prediction button
+This button should disappear after the 1st innings is resolved since the main prediction button will be used for 2nd innings predictions anyway
+Make sure to xfer over if a user has entered 2nd innings prediction already after 1st innings was locked with this new button to normal 2nd innings guess i.e. both winner and overs/runs
+This way people don't have to make the 2nd innings prediction exactly in the innings break and can do the same with more than 1.2 hours in hand if they're already sure
+
+
+fix rcb vs lsg 2nd innings manually
+remove penalty for yesterday and today
+figure out a way to add what exactly the penalty(s) were applied for after hovering on total penalties in audience UI
+(i.e. -40 should say -5 1st over entry -15 change in 2nd over, -20 change in winner team)
+^^ for this would it be better to store all previous predictions for every user, and if we do so what could be a way to display that, maybe clicking on penalties?
+hide 2nd innings predictions until the 1st ball is bowled in the 2nd innings for everyone
+sotre and check prev score ping and make sure we dont jump overs like going from 0.1 overs to 19.6 ov in 1 ping, if that happens its usually a scrapping error. 
+Make sure the chasing side's score is scraped as chasing side and not mistake the defending side's score as chasing side to finish the game early
+

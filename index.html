@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OverlayChat FIFA World Cup 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="./assets/styles.css?v=2" />
+    <link rel="stylesheet" href="./assets/ui-overrides.css" />
+    <link rel="stylesheet" href="./assets/visualize_data.css?v=3" />
+  </head>
+  <body class="app-shell">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+    <main class="page page-audience">
+      <section id="audienceGate" class="panel audience-gate hidden">
+        <div class="panel-header">
+          <div>
+            <p class="panel-kicker">Join Match</p>
+            <h2>Enter the match code</h2>
+          </div>
+        </div>
+        <form id="roomJoinForm" class="stack-form">
+          <label>
+            Match code
+            <input
+              id="roomCode"
+              name="roomCode"
+              maxlength="40"
+              placeholder="e.g. fifa"
+              required
+            />
+          </label>
+          <button type="submit" class="primary-btn">Join audience room</button>
+        </form>
+
+        <div id="activeDiscovery" class="active-discovery hidden">
+          <p class="discovery-kicker">Live Matches Now</p>
+          <div id="activeSessionsList" class="active-sessions-grid"></div>
+        </div>
+      </section>
+
+      <div id="audienceApp" class="hidden">
+        <section class="hero audience-hero audience-hero-compact">
+          <div class="hero-meta">
+            <span>Code: <strong id="roomBadge">loading...</strong></span>
+            <span id="matchBadge">Waiting for match setup</span>
+            <div class="hero-actions">
+              <button id="viewStatsList" class="glass-pill-btn">
+                <i class="fa-solid fa-chart-simple"></i> Player Stats
+              </button>
+              <button id="viewLeaderboard" class="glass-pill-btn">
+                <i class="fa-solid fa-trophy"></i> Leaderboard
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="setupNotice" class="setup-notice hidden">
+          Firebase is not configured yet. Add your keys in
+          <code>assets/firebase-config.js</code>, then refresh.
+        </section>
+
+        <div class="grid-two">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Prediction</p>
+                <h2>Submit your call</h2>
+              </div>
+              <span class="status-pill" id="predictionStatus">Live</span>
+            </div>
+
+            <form id="predictionForm" class="stack-form">
+              <div class="name-field-header">
+                <label for="viewerName">Your name</label>
+                <button type="button" id="restoreSessionBtn" class="ghost-link-xs hidden">Already predicted? Restore session</button>
+              </div>
+              <input id="viewerName" name="viewerName" maxlength="30" required />
+
+              <label>
+                Predicted winner
+                <select id="predictedWinner" name="predictedWinner" required>
+                  <option value="">Choose winner</option>
+                </select>
+              </label>
+
+              <div class="dual-row">
+                <label>
+                  <span id="labelScoreA">Team A Goals</span>
+                  <input
+                    type="number"
+                    id="scoreA"
+                    name="scoreA"
+                    placeholder="0"
+                    min="0"
+                    max="999"
+                    step="any"
+                    required
+                  />
+                </label>
+                <label>
+                  <span id="labelScoreB">Team B Goals</span>
+                  <input
+                    type="number"
+                    id="scoreB"
+                    name="scoreB"
+                    placeholder="0"
+                    min="0"
+                    max="999"
+                    step="any"
+                    required
+                  />
+                </label>
+              </div>
+
+              <button type="submit" class="primary-btn">Send prediction</button>
+              <button type="button" id="predict2ndBtn" class="secondary-btn hidden" style="margin-top: 10px; width: 100%; border: 1px dashed var(--system-blue); background: rgba(10, 132, 255, 0.05);">
+                <i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px;"></i> Predict 2nd Half Early
+              </button>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="panel-kicker">Live Chat</p>
+                <h2>Chat with the audience</h2>
+              </div>
+              <span class="status-pill neutral" id="chatStatus">Listening</span>
+            </div>
+
+            <form id="chatForm" class="chat-compose">
+              <div class="chat-input-wrapper">
+                <textarea
+                  id="chatMessage"
+                  name="chatMessage"
+                  rows="1"
+                  maxlength="200"
+                  placeholder="Back your team here..."
+                  required
+                ></textarea>
+                <div class="chat-actions">
+                  <button type="button" id="toggleGifPicker" class="icon-btn" title="Send GIF">
+                    <i class="fa-solid fa-icons"></i>
+                  </button>
+                  <button type="submit" class="send-btn" title="Send Message">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <!-- Integrated GIF Picker -->
+            <div id="gifPicker" class="gif-picker-container hidden">
+              <div class="gif-picker-header">
+                <div class="picker-tabs">
+                  <button type="button" class="tab-btn active" data-tab="gifs">GIFs</button>
+                  <button type="button" class="tab-btn" data-tab="stickers">Stickers</button>
+                </div>
+                <div class="search-bar" id="pickerSearchBox">
+                  <input type="text" id="gifSearch" placeholder="Search Klipy..." />
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+              </div>
+              
+              <div class="gif-grid-viewport">
+                <div id="gifGrid" class="gif-grid">
+                  <div class="gif-placeholder">Loading trending...</div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="chat-feed" id="chatFeed"></div>
+          </section>
+        </div>
+      </div>
+      </div>
+    </main>
+    
+    <!-- Leaderboard Modal Overlay -->
+    <div id="leaderboardModal" class="dashboard-overlay hidden">
+      <div class="dashboard-container">
+        <header class="dashboard-header">
+          <div class="header-nav-tabs">
+            <button class="modal-nav-tab active" data-view="season">Season Standings</button>
+            <button class="modal-nav-tab" data-view="daily">Daily Updates</button>
+          </div>
+          <button class="close-btn" id="closeLeaderboard">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </header>
+
+        <!-- Season View -->
+        <div class="dashboard-content" id="seasonView">
+          <div class="leaderboard-tabs">
+            <button class="l-tab active" data-mode="total">Total Points</button>
+            <button class="l-tab" data-mode="ppg">Points Per Match</button>
+          </div>
+          
+          <div id="ppgFilterWrapper" class="hidden" style="display: flex; justify-content: flex-end; margin-bottom: 8px; padding-right: 20px;">
+            <select id="ppgMatchFilter" style="width: auto; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 0.85rem; cursor: pointer; outline: none;">
+              <option value="0" style="background: #111;">All Users</option>
+              <option value="5" style="background: #111;">Min 5 Matches</option>
+              <option value="10" style="background: #111;">Min 10 Matches</option>
+              <option value="15" style="background: #111;">Min 15 Matches</option>
+            </select>
+          </div>
+
+          <div class="leaderboard-scroll" id="leaderboardScroll">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Games</th>
+                  <th>Total Pts</th>
+                  <th>PPG</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardList">
+                <!-- Standings go here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Daily Updates View (Match List) -->
+        <div class="dashboard-content hidden" id="dailyView">
+          <div class="daily-header">
+            <h3>Recent Matches</h3>
+          </div>
+          <div class="history-list" id="historyList">
+            <!-- Archival dates rendered here -->
+          </div>
+        </div>
+
+        <!-- Match Detail View -->
+        <div class="dashboard-content hidden" id="matchDetailView">
+          <div class="detail-header">
+            <button class="ghost-btn" id="backToDailyBtn">
+              <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <h3 id="matchDetailTitle">Match Details</h3>
+          </div>
+          <div class="leaderboard-scroll">
+            <table class="leaderboard-table detail-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>1st Half</th>
+                  <th>2nd Half</th>
+                  <th>Pen</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="matchDetailList">
+                <!-- Specific match stats go here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Viz Modals -->
+    <div id="playerProfileModal" class="dashboard-overlay viz-modal hidden"></div>
+    <div id="playerListModal" class="dashboard-overlay viz-modal hidden"></div>
+    <div id="playerTrendModal" class="dashboard-overlay viz-modal hidden"></div>
+    <div id="compareModal" class="dashboard-overlay viz-modal hidden"></div>
+
+    <script type="module" src="./assets/audience.js?v=3"></script>
+  </body>
+</html>

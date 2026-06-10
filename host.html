@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OverlayChat Host - FIFA World Cup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body class="app-shell">
+    <div class="ambient ambient-left"></div>
+    <div class="ambient ambient-right"></div>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Host Console</p>
+        <h1>Control the room your audience will join</h1>
+        <p class="hero-copy">
+          Set the match title, define the two teams, copy your audience URL, and
+          clear the room between matches.
+        </p>
+        <div class="hero-meta">
+          <span>Room: <strong id="hostRoomBadge">loading...</strong></span>
+        </div>
+      </section>
+
+      <section id="hostSetupNotice" class="setup-notice hidden">
+        Firebase is not configured yet. Add your keys in
+        <code>assets/firebase-config.js</code>, then refresh.
+      </section>
+
+      <div class="grid-two">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Match Setup</p>
+              <h2>Room metadata</h2>
+            </div>
+            <span class="status-pill" id="hostStatus">Ready</span>
+          </div>
+
+          <form id="hostForm" class="stack-form">
+            <label>
+              Match title
+              <input id="matchTitle" name="matchTitle" maxlength="60" required />
+            </label>
+
+            <label>
+              Team A
+              <input id="teamA" name="teamA" maxlength="30" required />
+            </label>
+
+            <label>
+              Team B
+              <input id="teamB" name="teamB" maxlength="30" required />
+            </label>
+
+            <label>
+              Match State
+              <select id="matchState" name="matchState">
+                <option value="Pre-Match">Pre-Match</option>
+                <option value="1st Half">1st Half</option>
+                <option value="Half Time">Half Time</option>
+                <option value="2nd Half">2nd Half</option>
+                <option value="Full Time">Full Time</option>
+                <option value="Extra Time">Extra Time</option>
+                <option value="Penalties">Penalties</option>
+              </select>
+            </label>
+
+            <label class="toggle-row">
+              <span>Lock predictions</span>
+              <input type="checkbox" id="predictionsPaused" class="toggle-input" />
+              <div class="toggle-track"></div>
+            </label>
+
+            <label class="toggle-row">
+              <span>Allow re-prediction</span>
+              <input type="checkbox" id="allowReprediction" class="toggle-input" />
+              <div class="toggle-track"></div>
+            </label>
+
+            <button type="submit" class="primary-btn">Save room setup</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Share</p>
+              <h2>Audience and overlay links</h2>
+            </div>
+          </div>
+
+          <div class="share-links">
+            <label>
+              Audience page
+              <input id="audienceLink" readonly />
+            </label>
+
+            <label>
+              Overlay page
+              <input id="overlayLink" readonly />
+            </label>
+          </div>
+
+          <div class="button-row">
+            <button id="copyAudienceLink" class="secondary-btn" type="button">
+              Copy audience URL
+            </button>
+            <button id="copyOverlayLink" class="secondary-btn" type="button">
+              Copy overlay URL
+            </button>
+          </div>
+
+          <div class="danger-zone">
+            <p class="panel-kicker">Reset Room</p>
+            <p>Use this before a new match starts.</p>
+            <div class="button-row">
+              <button id="clearPredictions" class="ghost-btn" type="button">
+                Clear predictions
+              </button>
+              <button id="clearChat" class="ghost-btn" type="button">
+                Clear chat
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="./assets/host.js"></script>
+  </body>
+</html>

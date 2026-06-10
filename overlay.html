@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> </title>
+    <!-- Relying on Apple System Fonts -->
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <link rel="stylesheet" href="./assets/ui-overrides.css" />
+    <style>
+      .win-prob-section {
+        margin-top: 10px;
+        padding: 12px 14px !important;
+        animation: fadeIn 0.4s ease-out;
+        border-top: none !important;
+      }
+      .win-prob-title {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-align: center;
+        color: rgba(255,255,255,0.4);
+        margin-top: 10px;
+        text-transform: uppercase;
+      }
+      .win-prob-section .team-label {
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .win-prob-section .percent-label {
+        font-size: 10px;
+      }
+      .win-prob-section .graph-track {
+        height: 5px;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .text-right { text-align: right; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      body.desktop-embed .overlay-widget {
+        border-radius: 34px;
+      }
+    </style>
+  </head>
+  <body class="overlay-shell">
+    <main
+      class="overlay-page overlay-widget"
+      id="overlayWidget"
+    >
+      <header class="overlay-topbar" id="overlayDragHandle" aria-label="Drag overlay"></header>
+
+      <section id="overlaySetupNotice" class="setup-notice hidden">
+        Firebase is not configured yet. Add your keys in
+        <code>assets/firebase-config.js</code>, then refresh.
+      </section>
+
+      <section class="overlay-ribbon predictions-ribbon">
+        <div class="overlay-ribbon-header">
+          <span class="section-title predictions-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4 16.5L9.5 11l3.5 3.5L20 7.5M20 7.5V13M20 7.5h-5.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Live Predictions</span>
+          </span>
+          <strong id="predictionCount" class="section-meta">0 live</strong>
+        </div>
+        
+        <div class="prediction-graph" id="predictionGraph">
+          <div class="graph-labels">
+            <span id="teamALabel" class="team-label">Team A</span>
+            <span id="graphPercent" class="percent-label">50% / 50%</span>
+            <span id="teamBLabel" class="team-label">Team B</span>
+          </div>
+          <div class="graph-track">
+            <div id="graphFill" class="graph-fill" style="width: 50%"></div>
+          </div>
+        </div>
+
+        <div id="winProbOverlay" class="overlay-ribbon win-prob-ribbon hidden">
+          <div class="overlay-ribbon-header">
+            <span class="section-title win-prob-title">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Win Probability</span>
+            </span>
+          </div>
+
+          <div class="prediction-graph">
+            <div class="graph-labels">
+              <span id="winProbTeamA" class="team-label">Team A</span>
+              <span id="winProbValueTag" class="percent-label">50% / 50%</span>
+              <span id="winProbTeamB" class="team-label">Team B</span>
+            </div>
+            <div class="graph-track">
+              <div id="winProbFill" class="win-prob-fill graph-fill" style="width: 50%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scoreboard hidden" id="winnerTally"></div>
+        <div class="prediction-cards" id="predictionCards"></div>
+      </section>
+
+      <section class="overlay-ribbon chat-ribbon">
+        <div class="overlay-ribbon-header">
+          <span class="section-title chat-title">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8 18l-4 2 1.2-4.2A7.5 7.5 0 1 1 19.5 12c0 4.1-3.4 7.5-7.5 7.5-.9 0-1.8-.2-2.7-.5L8 18Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Live Chat</span>
+          </span>
+        </div>
+        <div class="chat-feed overlay-chat" id="overlayChatFeed"></div>
+      </section>
+
+      <section class="audience-url-chip audience-url-footer">
+        <span class="join-pill-label">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M10 14l-2 2a3 3 0 0 1-4.2-4.2l3-3A3 3 0 0 1 11 9m3-1l2-2a3 3 0 0 1 4.2 4.2l-3 3A3 3 0 0 1 13 15"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M9 15l6-6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span>Join Live</span>
+        </span>
+        <button class="join-card" id="joinCopyButton" type="button">
+          <div class="join-card-copy">
+            <strong id="audienceUrlLabel" class="audience-url-text">loading...</strong>
+            <span id="audienceCodeLabel" class="audience-code-text">Code: loading...</span>
+          </div>
+          <div class="join-card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M9 9.5A2.5 2.5 0 0 1 11.5 7h7A2.5 2.5 0 0 1 21 9.5v7a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 9 16.5v-7Z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+              <path
+                d="M15 7V5.5A2.5 2.5 0 0 0 12.5 3h-7A2.5 2.5 0 0 0 3 5.5v7A2.5 2.5 0 0 0 5.5 15H7"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              />
+            </svg>
+          </div>
+        </button>
+      </section>
+
+    </main>
+
+    <script type="module" src="./assets/overlay.js"></script>
+  </body>
+</html>

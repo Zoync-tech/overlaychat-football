@@ -1,0 +1,158 @@
+/* Apple Style UI Overrides */
+
+/* Scrollbar refinement - highly minimalist */
+.prediction-cards,
+.overlay-chat {
+  scrollbar-width: none;
+}
+.prediction-cards::-webkit-scrollbar,
+.overlay-chat::-webkit-scrollbar {
+  display: none;
+}
+
+/* Prediction List Layout */
+.prediction-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1px; /* Minimal gap */
+  max-height: 560px; /* Adjusted to fit 15 cards at ~36px height */
+  padding: 0 4px;
+}
+
+/* Apple Style Moderation Button */
+.overlay-admin-remove {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: var(--system-red);
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.prediction-card:hover .overlay-admin-remove,
+.overlay-message:hover .overlay-admin-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Prediction Lock Indicator */
+.prediction-lock-notice {
+  padding: 6px 12px;
+  background: rgba(255, 69, 58, 0.15);
+  border-radius: 10px;
+  color: #ff453a;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Winner Indication */
+.prediction-card.is-winner {
+  background: rgba(48, 209, 88, 0.1);
+}
+.prediction-card.is-winner .prediction-score {
+  color: var(--system-green);
+}
+
+/* Drag Handle - Minimal Apple Style */
+.overlay-drag-orb {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+.overlay-widget:hover .overlay-drag-orb {
+  opacity: 0.8;
+}
+
+/* Prediction Form Layout refinements */
+.stack-form .dual-row.single-col {
+  grid-template-columns: 1fr !important;
+}
+
+/* Team Logo Styling - 1.5x larger, uniform, and centered */
+.team-logo-inline {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+/* Remove backgrounds from team indicators in the overlay */
+.prediction-side {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+/* High Contrast Visibility for all Overlay Text */
+.prediction-card.compact .prediction-name,
+.prediction-card.compact .card-time,
+.prediction-card.compact .prediction-val,
+.prediction-card.compact .prediction-val span {
+  color: var(--contrast, #ffffff) !important;
+  opacity: 1 !important;
+}
+
+.prediction-card.compact .prediction-name {
+  font-size: 0.95rem;
+}
+
+.prediction-card.compact .card-time {
+  font-size: 0.8rem;
+}
+
+/* Ensure Logo alignment in graph labels */
+.graph-labels .team-logo-inline {
+  width: 20px;
+  height: 20px;
+  margin: 0 6px;
+}
+/* Name Field Utility */
+.name-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.name-field-header label {
+  margin-bottom: 0 !important;
+}
+.ghost-link-xs {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--system-blue);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+.ghost-link-xs:hover {
+  opacity: 1;
+}
+.ghost-link-xs.hidden {
+  display: none;
+}

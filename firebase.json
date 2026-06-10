@@ -1,0 +1,47 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      ".git/**",
+      ".github/**",
+      ".firebase/**",
+      "desktop/**",
+      "dist/**",
+      "node_modules/**",
+      "package.json",
+      "package-lock.json",
+      "README.md",
+      "database.rules.json"
+    ],
+    "rewrites": [
+      {
+        "source": "/a",
+        "destination": "/index.html"
+      },
+      {
+        "source": "/o",
+        "destination": "/overlay.html"
+      },
+      {
+        "source": "/h",
+        "destination": "/host.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(js|css|html)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          }
+        ]
+      }
+    ]
+  }
+}

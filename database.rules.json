@@ -1,0 +1,56 @@
+{
+  "rules": {
+    "rooms": {
+      "$roomId": {
+        "meta": {
+          ".read": true,
+          ".write": true
+        },
+        "chat": {
+          ".read": true,
+          ".write": true,
+          "$messageId": {
+            ".validate": "newData.val() == null || (newData.child('name').isString() && newData.child('message').isString())"
+          }
+        },
+        "predictions": {
+          ".read": true,
+          ".write": true,
+          "$clientId": {
+            ".validate": "newData.val() == null || (newData.hasChildren(['clientId', 'name', 'predictedWinner', 'updatedAt']) || newData.hasChildren(['clientId', 'name', 'predictedWinner', 'submittedAt']))"
+          }
+        },
+        "early_2nd_predictions": {
+          ".read": true,
+          ".write": true
+        },
+        "prediction_history": {
+          ".read": true,
+          ".write": true
+        },
+        "innings_history": {
+          ".read": true,
+          ".write": true
+        },
+        "history": {
+          ".read": true,
+          ".write": true
+        },
+        "season_leaderboard": {
+          ".read": true,
+          ".write": true
+        },
+        "reaction": {
+          ".read": true,
+          ".write": true
+        }
+      }
+    },
+    "active_sessions": {
+      ".read": true,
+      "$roomId": {
+        ".write": true
+      }
+    }
+  }
+}

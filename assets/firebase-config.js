@@ -7,3 +7,7 @@ export const firebaseConfig = {
   appId: "1:831355989270:web:6b378f084a5303f345f437",
   measurementId: "G-MHMLL0H7JD"
 };
+
+export const isFirebaseConfigured = Object.values(firebaseConfig).every(
+  (value) => typeof value === "string" && value.trim() !== "" && !value.startsWith("PASTE_"),
+);

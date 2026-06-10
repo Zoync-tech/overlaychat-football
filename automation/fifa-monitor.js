@@ -36,7 +36,6 @@ const setupFirebase = () => {
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        // We will push to the configured database or let the default kick in if databaseURL is not provided
         databaseURL: process.env.FIREBASE_DATABASE_URL || `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`
       });
     }
@@ -52,58 +51,73 @@ const runMonitor = async () => {
   console.log("=== STARTING FIFA AUTOMATION MONITOR ===");
   setupFirebase();
   const db = admin.database();
-  const ROOM = process.env.FIREBASE_ROOM || "fifa";
-
-  console.log(`[Firebase] Target Room: ${ROOM}`);
+  const BASE_ROOM = process.env.FIREBASE_ROOM || "fifa";
 
   while (true) {
     try {
       const data = await fetchESPN();
       const events = data.events || [];
 
-      // Find an active match, or the next scheduled match today
-      let targetEvent = events.find(e => e.status.type.state === 'in');
-      if (!targetEvent) {
-        targetEvent = events.find(e => e.status.type.state === 'pre');
+      // Find all active matches first
+      let targetEvents = events.filter(e => e.status.type.state === 'in');
+      
+      // If no active matches, find all upcoming pre-matches
+      if (targetEvents.length === 0) {
+        targetEvents = events.filter(e => e.status.type.state === 'pre');
       }
       
-      if (!targetEvent) {
+      if (targetEvents.length === 0) {
         console.log("No active or upcoming matches found today. Exiting.");
-        break; // End action if no matches left today
+        break; 
       }
 
-      const comp = targetEvent.competitions[0];
-      const home = comp.competitors.find(c => c.homeAway === 'home');
-      const away = comp.competitors.find(c => c.homeAway === 'away');
+      for (let i = 0; i < targetEvents.length; i++) {
+        const targetEvent = targetEvents[i];
+        const comp = targetEvent.competitions[0];
+        const home = comp.competitors.find(c => c.homeAway === 'home');
+        const away = comp.competitors.find(c => c.homeAway === 'away');
 
-      const teamA = home.team.name;
-      const teamB = away.team.name;
-      const scoreA = home.score || "0";
-      const scoreB = away.score || "0";
-      const matchState = targetEvent.status.type.description; // e.g. "Halftime", "Full Time"
-      const matchTitle = targetEvent.name;
+        const teamA = home.team.name;
+        const teamB = away.team.name;
+        const scoreA = home.score || "0";
+        const scoreB = away.score || "0";
+        const matchState = targetEvent.status.type.description; 
+        const matchTitle = targetEvent.name;
 
-      console.log(`[Match] ${matchTitle} | State: ${matchState} | Score: ${teamA} ${scoreA} - ${scoreB} ${teamB}`);
+        // Room mapping: first match goes to fifa1, second to fifa2, etc.
+        const roomName = `${BASE_ROOM}${i + 1}`;
+        console.log(`[Match ${i + 1}] -> ${roomName} | ${matchTitle} | State: ${matchState} | Score: ${teamA} ${scoreA} - ${scoreB} ${teamB}`);
 
-      await db.ref(`rooms/${ROOM}/meta`).update({
-        matchTitle,
-        teamA,
-        teamB,
-        scoreA,
-        scoreB,
-        matchState,
-        updatedAt: admin.database.ServerValue.TIMESTAMP
-      });
+        const updateData = {
+          matchTitle,
+          teamA,
+          teamB,
+          scoreA,
+          scoreB,
+          matchState,
+          updatedAt: admin.database.ServerValue.TIMESTAMP
+        };
 
-      if (targetEvent.status.type.state === 'post') {
-        console.log("Match has ended.");
-        // If there are other matches today, the loop will pick the next one up on next iteration
+        // Update the numbered room (e.g., fifa1, fifa2)
+        await db.ref(`rooms/${roomName}/meta`).update(updateData);
+
+        // Alias the first match to the base room (e.g., fifa) so ?r=fifa still works
+        if (i === 0) {
+          await db.ref(`rooms/${BASE_ROOM}/meta`).update(updateData);
+        }
+      }
+
+      // Check if all targeted events have ended
+      const allEnded = targetEvents.every(e => e.status.type.state === 'post');
+      if (allEnded) {
+        console.log("Matches have ended.");
         await sleep(60 * 1000); 
         continue; 
       }
 
-      // Poll every 30 seconds if live, otherwise every 2 minutes if pre-match
-      const waitTime = targetEvent.status.type.state === 'in' ? 30000 : 120000;
+      // Poll every 30 seconds if any match is live, otherwise every 2 minutes
+      const isAnyLive = targetEvents.some(e => e.status.type.state === 'in');
+      const waitTime = isAnyLive ? 30000 : 120000;
       await sleep(waitTime);
 
     } catch (err) {

@@ -61,7 +61,6 @@ const chatFeed = document.querySelector("#chatFeed");
 const predictionStatus = document.querySelector("#predictionStatus");
 const chatStatus = document.querySelector("#chatStatus");
 const predictionSubmitButton = predictionForm?.querySelector("button[type='submit']");
-const predict2ndBtn = document.querySelector("#predict2ndBtn");
 const restoreSessionBtn = document.querySelector("#restoreSessionBtn");
 
 const activeDiscovery = document.querySelector("#activeDiscovery");
@@ -125,8 +124,6 @@ const setPredictionInputsDisabled = (disabled) => {
 };
 
 const syncPredictionAccess = (meta = {}) => {
-  setHidden(predict2ndBtn, true);
-
   if (predictionsPaused) {
     setPredictionInputsDisabled(true);
     predictionSubmitButton.disabled = true;
@@ -791,17 +788,6 @@ const handleGifSearch = async () => {
   }
 };
 
-// Early submission toggle
-predict2ndBtn.addEventListener("click", () => {
-  isEarlySubmissionMode = !isEarlySubmissionMode;
-  if (isEarlySubmissionMode) {
-    predict2ndBtn.innerHTML = '<i class="fa-solid fa-xmark" style="margin-right: 8px;"></i> Cancel Early H2 Prediction';
-  } else {
-    predict2ndBtn.innerHTML = '<i class="fa-solid fa-clock-rotate-left" style="margin-right: 8px;"></i> Predict 2nd Innings Early';
-  }
-  applyFormContext(); // Swaps form data instantly
-});
-
 let searchTimeout;
 gifSearchInput?.addEventListener("input", (e) => {
   clearTimeout(searchTimeout);
@@ -819,7 +805,7 @@ gifSearchInput?.addEventListener("keypress", (e) => {
 
 // --- Leaderboard Implementation ---
 
-const renderLeaderboard = (standings = []) => {
+function renderLeaderboard(standings = []) {
   localStandings = standings;
   if (!standings || standings.length === 0) {
     leaderboardList.innerHTML = `<tr><td colspan="5" class="empty-state">No rankings available yet.</td></tr>`;

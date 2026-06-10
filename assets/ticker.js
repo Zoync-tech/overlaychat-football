@@ -71,74 +71,19 @@ const updateTickerDOM = () => {
     `);
   }
 
-  // 1b. Fan Predictions (Grouped)
+  // 1b. Fan Predictions
   if (currentPredictions.length > 0) {
-    const is2ndInnings = Boolean(currentMeta.secondInnings);
-    const teamA = (currentMeta.teamA || "Home Team").toString().trim();
-    const teamB = (currentMeta.teamB || "Away Team").toString().trim();
-    const lowA = teamA.toLowerCase();
-    const lowB = teamB.toLowerCase();
-
-    let chasingTeam = null;
-    if (is2ndInnings) {
-      if (currentMeta.disableScoreA && !currentMeta.disableScoreB) chasingTeam = teamB;
-      else if (currentMeta.disableScoreB && !currentMeta.disableScoreA) chasingTeam = teamA;
-    }
-    const lowChaser = (chasingTeam || "").toLowerCase();
-    
     const sortedPredictions = [...currentPredictions].sort((a, b) => {
-      if (currentMeta.predictionSort !== "score") return 0;
-      const getValue = (p) => {
-        let val = 0;
-        if (is2ndInnings && chasingTeam) {
-          const lowChaser = chasingTeam.toLowerCase();
-          if (lowChaser === teamA.toLowerCase()) val = Number(p.scoreA) || 0;
-          else val = Number(p.scoreB) || 0;
-        } else {
-          const hasA = !currentMeta.disableScoreA;
-          const hasB = !currentMeta.disableScoreB;
-          if (hasA && !hasB) val = Number(p.scoreA) || 0;
-          else if (hasB && !hasA) val = Number(p.scoreB) || 0;
-          else {
-            const winner = (p.winner || "").toString().trim().toLowerCase();
-            if (winner === teamA.toLowerCase()) val = Number(p.scoreA) || 0;
-            else if (winner === teamB.toLowerCase()) val = Number(p.scoreB) || 0;
-            else val = Math.max(Number(p.scoreA) || 0, Number(p.scoreB) || 0);
-          }
-        }
-        return val === 0 ? Infinity : val;
-      };
-      return getValue(a) - getValue(b);
+      // Sort alphabetically for now
+      return (a.name || "").localeCompare(b.name || "");
     });
 
     const fanParts = sortedPredictions
       .map((p) => {
         const predictedWinnerOrig = (p.winner || "Guess").toString().trim();
-        const detailParts = [];
-        const shouldShow = (score, isTeamChaser) => {
-          const num = Number(score) || 0;
-          if (num <= 0) return false;
-          if (is2ndInnings) return isTeamChaser;
-          return true;
-        };
-
-        if (!currentMeta.disableScoreA && shouldShow(p.scoreA, lowChaser === lowA)) {
-          const isAChaser = lowChaser === lowA;
-          const isOver = is2ndInnings && isAChaser && predictedWinnerOrig.toLowerCase() === lowA;
-          const suffix = isOver ? " ov" : "";
-          const displayVal = isOver ? (Number(p.scoreA) || 0).toFixed(1) : p.scoreA;
-          detailParts.push(`${displayVal}${suffix}`);
-        }
-        if (!currentMeta.disableScoreB && shouldShow(p.scoreB, lowChaser === lowB)) {
-          const isBChaser = lowChaser === lowB;
-          const isOver = is2ndInnings && isBChaser && predictedWinnerOrig.toLowerCase() === lowB;
-          const suffix = isOver ? " ov" : "";
-          const displayVal = isOver ? (Number(p.scoreB) || 0).toFixed(1) : p.scoreB;
-          detailParts.push(`${displayVal}${suffix}`);
-        }
-
-        if (detailParts.length === 0) return null;
-        return `${p.name} (${predictedWinnerOrig}): ${detailParts.join(" - ")}`;
+        const scoreA = p.scoreA !== undefined ? p.scoreA : 0;
+        const scoreB = p.scoreB !== undefined ? p.scoreB : 0;
+        return `${p.name} (${predictedWinnerOrig}): ${currentMeta.teamA} ${scoreA} - ${scoreB} ${currentMeta.teamB}`;
       })
       .filter(Boolean);
 

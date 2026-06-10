@@ -17,10 +17,10 @@
   --glass-blur: saturate(180%) blur(24px);
   
   /* Team Colors - Initializing placeholders */
-  --team-a: #007AFF;
-  --team-a-alt: #D1AB3E; /* Using Gold for MI by default in initialization */
-  --team-b: #FF3B30;
-  --team-b-alt: #EF1B23; /* Using Red for DC by default in initialization */
+  --team-a: #1a5e20; /* Deep pitch green */
+  --team-a-alt: #4caf50; /* Light pitch green */
+  --team-b: #4a148c; /* FIFA Purple */
+  --team-b-alt: #e91e63; /* FIFA Magenta / Pink */
   --team-gradient: linear-gradient(135deg, var(--team-a), var(--team-a-alt), var(--team-b-alt), var(--team-b));
   --team-a-text: #ffffff;
   --team-b-text: #ffffff;

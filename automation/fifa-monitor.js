@@ -67,8 +67,40 @@ const runMonitor = async () => {
       }
       
       if (targetEvents.length === 0) {
-        console.log("No active or upcoming matches found today. Exiting.");
-        break; 
+        console.log("No active or upcoming matches found today on ESPN. Using CSV Fallback.");
+        
+        const fs = require('fs');
+        const path = require('path');
+        const csvPath = path.join(__dirname, '../schedule_2026_fifa.csv');
+        if (fs.existsSync(csvPath)) {
+            const lines = fs.readFileSync(csvPath, 'utf8').split('\n').filter(Boolean);
+            if (lines.length > 1) {
+                // Grab the first match from CSV
+                const matchLine = lines[1]; 
+                const parts = matchLine.split(',');
+                if (parts.length >= 6) {
+                    const home = parts[3];
+                    const away = parts[4];
+                    const title = parts[5].trim();
+                    
+                    targetEvents.push({
+                        name: title,
+                        status: { type: { state: 'pre', description: 'Scheduled' } },
+                        competitions: [{
+                            competitors: [
+                                { homeAway: 'home', team: { name: home }, score: "0" },
+                                { homeAway: 'away', team: { name: away }, score: "0" }
+                            ]
+                        }]
+                    });
+                }
+            }
+        }
+
+        if (targetEvents.length === 0) {
+            console.log("No matches in CSV either. Exiting.");
+            break;
+        }
       }
 
       for (let i = 0; i < targetEvents.length; i++) {

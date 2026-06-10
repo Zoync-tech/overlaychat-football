@@ -5,7 +5,7 @@ const { version: APP_VERSION } = require("../package.json");
 
 const DEFAULT_SETTINGS = {
   appVersion: APP_VERSION,
-  roomId: "ipl",
+  roomId: "fifa",
   overlayBaseUrl: "https://overlaychat-football.firebaseapp.com/o",
   clickThrough: false,
   overlayVisible: true,

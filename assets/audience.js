@@ -371,15 +371,13 @@ if (!roomSelected) {
     setStatus(chatStatus, "Setup required", "danger");
   } else {
     onValue(roomRef(roomId, "meta"), (snapshot) => {
-      const meta = snapshot.val() || {};
-      currentMeta = meta;
+      currentMeta = snapshot.val() || {};
+      
+      document.body.classList.toggle("chat-hidden", !!currentMeta.hideChat);
+
+      syncPredictionAccess(currentMeta);
       
       // Fix potential spelling mismatch between audience logic and DB
-      if (meta.allowReprediction !== undefined) {
-        meta.allowRepredictions = meta.allowReprediction;
-      }
-      
-      applyTeamTheme(meta.teamA, meta.teamB);
       renderWinnerOptions(meta);
       updateInningsLabels();
       syncPredictionAccess(meta);

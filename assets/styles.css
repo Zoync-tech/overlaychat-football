@@ -596,7 +596,8 @@ button:hover {
 }
 
 /* Hidden Chat State Layout Overrides */
-.chat-hidden .chat-ribbon {
+.chat-hidden .chat-ribbon,
+.chat-hidden .chat-panel {
   display: none !important;
 }
 

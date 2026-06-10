@@ -30,12 +30,12 @@
           <h2 class="group-title">Match Configuration</h2>
           <div class="glass-card">
             <div style="display:flex; justify-content:flex-end; margin-bottom: 12px;">
-              <button id="loadTodayMatch" class="action-btn pill small" type="button">🤖 Load Today's Match</button>
+
             </div>
             <form id="settingsForm" class="stack">
               <div class="form-row">
                 <label for="roomId">Room Identity</label>
-                <input id="roomId" name="roomId" maxlength="40" placeholder="e.g. ipl" required />
+                <input id="roomId" name="roomId" maxlength="40" placeholder="e.g. fifa" required />
               </div>
 
               <div class="form-row">
@@ -72,29 +72,23 @@
 
 
               <div class="form-row">
-                <label>Batting Team (Active Predictions)</label>
-                <div class="radio-group">
+                <label>Match State (Override automated status if needed)</label>
+                <div class="radio-group" id="matchStateGroup">
                   <div class="radio-option">
-                    <input type="radio" id="battingA" name="battingTeam" value="home" checked />
-                    <label class="radio-label" for="battingA" id="labelBattingA">Home Team</label>
+                    <input type="radio" id="stateScheduled" name="matchState" value="Scheduled" checked />
+                    <label class="radio-label" for="stateScheduled">Scheduled</label>
                   </div>
                   <div class="radio-option">
-                    <input type="radio" id="battingB" name="battingTeam" value="away" />
-                    <label class="radio-label" for="battingB" id="labelBattingB">Away Team</label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <label>Current Innings</label>
-                <div class="radio-group" id="inningsGroup">
-                  <div class="radio-option">
-                    <input type="radio" id="innings1st" name="innings" value="1" checked />
-                    <label class="radio-label" for="innings1st">1st Innings</label>
+                    <input type="radio" id="stateInProgress" name="matchState" value="In Progress" />
+                    <label class="radio-label" for="stateInProgress">In Progress</label>
                   </div>
                   <div class="radio-option">
-                    <input type="radio" id="innings2nd" name="innings" value="2" />
-                    <label class="radio-label" for="innings2nd">2nd Innings</label>
+                    <input type="radio" id="stateHalftime" name="matchState" value="Halftime" />
+                    <label class="radio-label" for="stateHalftime">Halftime</label>
+                  </div>
+                  <div class="radio-option">
+                    <input type="radio" id="stateFullTime" name="matchState" value="Full Time" />
+                    <label class="radio-label" for="stateFullTime">Full Time</label>
                   </div>
                 </div>
               </div>
@@ -115,30 +109,16 @@
         <section class="panel-group">
           <h2 class="group-title" id="resSectionTitle">Match Resolution</h2>
           <div class="glass-card stack">
-            <div id="resolution1st">
-              <div class="form-row">
-                <label for="actualScore">Actual 1st Innings Score</label>
-                <input type="number" id="actualScore" placeholder="e.g. 158" min="1" max="999" />
-              </div>
-            </div>
-            
-            <div id="resolution2nd" class="hidden">
-              <div class="form-row">
-                <label id="labelChaserWon" for="chaserWonYes">Did Chasing Team win?</label>
-                <div class="radio-group">
-                  <div class="radio-option">
-                    <input type="radio" id="chaserWonYes" name="chaserWon" value="yes" />
-                    <label class="radio-label" for="chaserWonYes">Yes</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" id="chaserWonNo" name="chaserWon" value="no" checked />
-                    <label class="radio-label" for="chaserWonNo">No</label>
-                  </div>
+            <div id="resolutionScores">
+              <div class="dual-row">
+                <div class="form-row">
+                  <label for="actualScoreA">Actual Team A Goals</label>
+                  <input type="number" id="actualScoreA" placeholder="e.g. 2" min="0" max="99" />
                 </div>
-              </div>
-              <div class="form-row">
-                <label id="labelActualResult" for="actualResult">Actual Result (Overs/Score)</label>
-                <input type="number" id="actualResult" placeholder="e.g. 15.2 or 145" step="any" min="0" />
+                <div class="form-row">
+                  <label for="actualScoreB">Actual Team B Goals</label>
+                  <input type="number" id="actualScoreB" placeholder="e.g. 1" min="0" max="99" />
+                </div>
               </div>
             </div>
 
@@ -146,49 +126,7 @@
               <button id="calculatePoints" class="primary-btn">Resolve & View Rankings</button>
               <button id="viewFinalStandings" class="action-btn">View Final Game Standings</button>
             </div>
-            <p class="panel-note">Resolve the current innings to archive points and prepare for the final report.</p>
-          </div>
-        </section>
-
-        <section class="panel-group">
-          <h2 class="group-title">Live Win Probability (Google)</h2>
-          <div class="glass-card stack">
-            <div class="form-row">
-              <label for="googleMatchUrl">Google Match URL</label>
-              <div class="input-action-group">
-                <input type="text" id="googleMatchUrl" placeholder="Paste Google URL here..." />
-                <button id="fetchNowBtn" class="action-btn">Fetch Now</button>
-              </div>
-              <div class="form-row items-center gap-2" style="margin-top: 8px;">
-                <span id="fetchStatus" class="panel-note" style="margin-top: 0;">Status: Not started</span>
-                <button id="viewDebugBtn" class="glass-btn small" title="View screenshot of what the scraper sees" style="padding: 4px 8px; font-size: 10px;">View Debug</button>
-                <button id="solveCaptchaBtn" class="action-btn small" title="Solve Google CAPTCHA" style="padding: 4px 8px; font-size: 10px;">Solve CAPTCHA</button>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <label class="toggle-row">
-                <span>Auto-Fetch (30s)</span>
-                <input type="checkbox" id="autoFetchWinProb" class="toggle-input" />
-                <div class="toggle-track"></div>
-              </label>
-            </div>
-
-            <div class="form-row">
-              <label class="toggle-row">
-                <span>Show on Overlay</span>
-                <input type="checkbox" id="showWinProb" class="toggle-input" />
-                <div class="toggle-track"></div>
-              </label>
-            </div>
-
-            <div class="divider"></div>
-            
-            <div class="control-row">
-
-            </div>
-            
-            <p class="panel-note">Slider updates automatically if Auto-Fetch is on. You can also slide it manually to override.</p>
+            <p class="panel-note">Resolve the match to archive points and prepare for the final report.</p>
           </div>
         </section>
 
@@ -291,7 +229,7 @@
         <header class="results-header">
           <div>
             <span class="badge">Ranking Results</span>
-            <h2 id="resultsTitle">Innings Leaderboard</h2>
+            <h2 id="resultsTitle">Match Leaderboard</h2>
           </div>
           <button id="closeResults" class="close-btn">&times;</button>
         </header>
@@ -322,9 +260,9 @@
         <footer class="results-footer">
           <div class="footer-actions">
             <button id="exportCsv" class="secondary-btn">Export to CSV</button>
-            <button id="clearAndPrep2nd" class="primary-btn">Prep 2nd Innings</button>
+            <button id="viewFinalStandingsAction" class="primary-btn">View Final Game Standings</button>
           </div>
-          <p class="footer-note">Prep handles archiving 1st innings and switching teams for you.</p>
+          <p class="footer-note">Review the results before checking the final overall standings.</p>
         </footer>
       </div>
     </div>
@@ -353,8 +291,8 @@
               <tr>
                 <th>Rank</th>
                 <th>Name</th>
-                <th>1st Innings</th>
-                <th>2nd Innings</th>
+                <th>Predicted A</th>
+                <th>Predicted B</th>
                 <th>Penalty</th>
                 <th>Total</th>
               </tr>
@@ -448,26 +386,13 @@
             <div class="divider" style="margin:20px 0;"></div>
             <div class="dual-row">
               <div class="form-row">
-                <label>Actual 1st Inn Score</label>
-                <input type="number" id="manualActual1st" placeholder="e.g. 201" />
+                <label>Actual Team A Goals</label>
+                <input type="number" id="manualActual1st" placeholder="e.g. 2" />
               </div>
               <div class="form-row">
-                <label>Actual Winner</label>
-                <div class="radio-group">
-                  <div class="radio-option">
-                    <input type="radio" id="manWinA" name="manualWinner" value="a" checked />
-                    <label class="radio-label small" for="manWinA" id="manWinALabel">Team A</label>
-                  </div>
-                  <div class="radio-option">
-                    <input type="radio" id="manWinB" name="manualWinner" value="b" />
-                    <label class="radio-label small" for="manWinB" id="manWinBLabel">Team B</label>
-                  </div>
-                </div>
+                <label>Actual Team B Goals</label>
+                <input type="number" id="manualActual2nd" placeholder="e.g. 1" />
               </div>
-            </div>
-            <div class="form-row" style="margin-top:12px;">
-              <label>Actual 2nd Inn Result (Score or Overs)</label>
-              <input type="text" id="manualActual2nd" placeholder="e.g. 15.4 or 145" />
             </div>
           </div>
 
@@ -482,10 +407,9 @@
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>1st Inn Guess</th>
-                    <th>1st Winner</th>
-                    <th>2nd Inn Guess</th>
-                    <th>2nd Winner</th>
+                    <th>A Goals</th>
+                    <th>B Goals</th>
+                    <th>Winner</th>
                     <th>Auto-Points</th>
                     <th></th>
                   </tr>
@@ -526,31 +450,12 @@
             <input type="date" id="editMatchDate" />
           </div>
           <div class="form-group">
-            <label>Actual 1st Innings Score</label>
-            <input type="number" id="editActual1st" placeholder="e.g. 185" />
+            <label>Actual Team A Goals</label>
+            <input type="number" id="editActual1st" placeholder="e.g. 2" />
           </div>
           <div class="form-group">
-            <label>Team A Name</label>
-            <input type="text" id="editTeamA" placeholder="Team A" />
-          </div>
-          <div class="form-group">
-            <label>Team B Name</label>
-            <input type="text" id="editTeamB" placeholder="Team B" />
-          </div>
-          <div class="form-group">
-            <label>Actual 2nd Innings Result</label>
-            <input type="text" id="editActual2nd" placeholder="e.g. 18.2 or 165" />
-          </div>
-          <div class="form-group">
-            <label>Actual Winner</label>
-            <div style="display:flex; gap:15px; margin-top:5px;">
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-                <input type="radio" name="editWinner" value="a" id="editWinRadioA"> <span id="editLabelA">Team A</span>
-              </label>
-              <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
-                <input type="radio" name="editWinner" value="b" id="editWinRadioB"> <span id="editLabelB">Team B</span>
-              </label>
-            </div>
+            <label>Actual Team B Goals</label>
+            <input type="number" id="editActual2nd" placeholder="e.g. 1" />
           </div>
         </div>
 

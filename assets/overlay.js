@@ -200,12 +200,7 @@ const adminActionMarkup = (type, id) =>
 
 const renderPredictions = (predictions) => {
   const getSortedPredictions = (list, meta) => {
-    // BLIND MODE DETECTION:
-    // 1. Pre-match (Over 0.0 and 1st innings)
-    // 2. Innings Break (Hard blind)
-    const overVal = parseFloat(meta.currentOver || "0");
-    const isMatchStarted = overVal > 0 || meta.secondInnings;
-    const isBlindMode = !isMatchStarted || meta.isInningsBreak;
+    const isBlindMode = meta.matchState === "Scheduled" || meta.predictionsPaused;
 
     if (isBlindMode) {
       return [...list].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -215,65 +210,11 @@ const renderPredictions = (predictions) => {
       return sortByTimestampDescending(list, "updatedAt");
     }
 
-    const teamA = (meta.teamA || "Team A").toString().trim();
-    const teamB = (meta.teamB || "Team B").toString().trim();
-    const is2ndInnings = Boolean(meta.secondInnings);
-    
-    let chasingTeam = null;
-    if (is2ndInnings) {
-      if (meta.disableScoreA && !meta.disableScoreB) chasingTeam = teamB;
-      else if (meta.disableScoreB && !meta.disableScoreA) chasingTeam = teamA;
-    }
-
     return [...list].sort((a, b) => {
-      const getValue = (p) => {
-        const is2ndInnings = Boolean(meta.secondInnings);
-        const teamA = (meta.teamA || "Team A").toString().trim();
-        const teamB = (meta.teamB || "Team B").toString().trim();
-        
-        let chasingTeam = null;
-        if (is2ndInnings) {
-          if (meta.disableScoreA && !meta.disableScoreB) chasingTeam = teamB;
-          else if (meta.disableScoreB && !meta.disableScoreA) chasingTeam = teamA;
-        }
-
-        let val = 0;
-        if (is2ndInnings && chasingTeam) {
-          // In 2nd innings, always use the chasing team's field
-          const lowChaser = chasingTeam.toLowerCase();
-          const lowA = teamA.toLowerCase();
-          if (lowChaser === lowA) val = Number(p.scoreA) || 0;
-          else val = Number(p.scoreB) || 0;
-        } else {
-          // 1st Innings logic
-          const hasA = !meta.disableScoreA;
-          const hasB = !meta.disableScoreB;
-          
-          if (hasA && !hasB) {
-            val = Number(p.scoreA) || 0;
-          } else if (hasB && !hasA) {
-            val = Number(p.scoreB) || 0;
-          } else {
-            // Both active (rare in 1st innings) or both disabled: use predicted winner's score
-            const winner = (p.predictedWinner || "").toString().trim().toLowerCase();
-            const lowA = teamA.toLowerCase();
-            const lowB = teamB.toLowerCase();
-            
-            if (winner === lowA) val = Number(p.scoreA) || 0;
-            else if (winner === lowB) val = Number(p.scoreB) || 0;
-            else val = Math.max(Number(p.scoreA) || 0, Number(p.scoreB) || 0);
-          }
-        }
-
-        // Put zero/null scores at the end of the sort
-        return val === 0 ? Infinity : val;
-      };
-
-      const valA = getValue(a);
-      const valB = getValue(b);
-      
-      if (valA === valB) return (b.updatedAt || 0) - (a.updatedAt || 0);
-      return valA - valB; // Ascending: lowest first, fastest first
+      const totalA = (Number(a.scoreA) || 0) + (Number(a.scoreB) || 0);
+      const totalB = (Number(b.scoreA) || 0) + (Number(b.scoreB) || 0);
+      if (totalA === totalB) return (b.updatedAt || 0) - (a.updatedAt || 0);
+      return totalA - totalB;
     });
   };
 
@@ -301,49 +242,8 @@ const renderPredictions = (predictions) => {
       const hasScoreA = prediction.scoreA !== null && prediction.scoreA !== undefined;
       const hasScoreB = prediction.scoreB !== null && prediction.scoreB !== undefined;
 
-      if (hasScoreA || hasScoreB) {
-        const teamA = (currentMeta.teamA || "Home Team").toString().trim();
-        const teamB = (currentMeta.teamB || "Away Team").toString().trim();
-        const is2ndInnings = Boolean(currentMeta.secondInnings);
-
-        const lowA = teamA.toLowerCase();
-        const lowB = teamB.toLowerCase();
-
-        // Infer chasing team:
-        let chasingTeam = null;
-        if (is2ndInnings) {
-          if (currentMeta.disableScoreA && !currentMeta.disableScoreB) chasingTeam = teamB;
-          else if (currentMeta.disableScoreB && !currentMeta.disableScoreA) chasingTeam = teamA;
-        }
-
-        const lowChaser = (chasingTeam || "").toLowerCase();
-        const predictedWinner = (prediction.predictedWinner || "").toString().trim().toLowerCase();
-        const isChasingWinner = lowChaser && predictedWinner === lowChaser;
-
-        const scores = [];
-        if (hasScoreA) {
-          const sA = prediction.scoreA;
-          const isAChaser = lowChaser === lowA;
-          const isOver = is2ndInnings && isAChaser && isChasingWinner;
-          
-          if (!is2ndInnings || isAChaser) {
-            const suffix = isOver ? " ov" : "";
-            const displayVal = isOver ? (Number(sA) || 0).toFixed(1) : sA;
-            scores.push(`<span class="team-a-highlight">${displayVal}${suffix}</span>`);
-          }
-        }
-        if (hasScoreB) {
-          const sB = prediction.scoreB;
-          const isBChaser = lowChaser === lowB;
-          const isOver = is2ndInnings && isBChaser && isChasingWinner;
-
-          if (!is2ndInnings || isBChaser) {
-            const suffix = isOver ? " ov" : "";
-            const displayVal = isOver ? (Number(sB) || 0).toFixed(1) : sB;
-            scores.push(`<span class="team-b-highlight">${displayVal}${suffix}</span>`);
-          }
-        }
-        displayScore = scores.join('<span class="score-divider">-</span>');
+      if (hasScoreA && hasScoreB) {
+        displayScore = `<span class="team-a-highlight">${prediction.scoreA}</span><span class="score-divider">-</span><span class="team-b-highlight">${prediction.scoreB}</span>`;
       } else {
         displayScore = escapeHtml(prediction.predictedScore || "");
       }

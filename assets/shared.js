@@ -1,4 +1,4 @@
-export const DEFAULT_ROOM = "ipl";
+export const DEFAULT_ROOM = "fifa";
 export const HOSTED_AUDIENCE_ORIGIN = "https://vrccim.com";
 
 export const getRoomId = () => {
@@ -103,38 +103,59 @@ export const setHidden = (element, shouldHide) => {
 };
 
 export const TEAM_COLORS = {
-  MI: { primary: "#004BA0", secondary: "#D1AB3E" }, // Blue & Gold
-  CSK: { primary: "#FFFF00", secondary: "#0081E5" }, // Yellow & Blue
-  RCB: { primary: "#EC1C24", secondary: "#000000" }, // Red & Black
-  KKR: { primary: "#3A225D", secondary: "#B39959" }, // Purple & Gold
-  SRH: { primary: "#FF822A", secondary: "#000000" }, // Orange & Black
-  PBKS: { primary: "#D71920", secondary: "#D4AF37" }, // Red & Gold
-  DC: { primary: "#1E5FBF", secondary: "#EF1B23" }, // Blue & Red (Lightened DC blue slightly for contrast)
-  RR: { primary: "#EA1A85", secondary: "#004B8C" }, // Pink & Blue
-  GT: { primary: "#0B1350", secondary: "#BC9412" }, // Navy & Gold
-  LSG: { primary: "#0057E2", secondary: "#E10715" }  // Cyan & Red
+  ARG: { primary: "#43A1D5", secondary: "#FFFFFF" }, // Argentina
+  BRA: { primary: "#009c3b", secondary: "#ffdf00" }, // Brazil
+  FRA: { primary: "#002395", secondary: "#ED2939" }, // France
+  GER: { primary: "#000000", secondary: "#FFCE00" }, // Germany
+  ENG: { primary: "#FFFFFF", secondary: "#CE1126" }, // England
+  ESP: { primary: "#AA151B", secondary: "#F1BF00" }, // Spain
+  POR: { primary: "#FF0000", secondary: "#006600" }, // Portugal
+  ITA: { primary: "#0064A8", secondary: "#FFFFFF" }, // Italy
+  NED: { primary: "#FF4F00", secondary: "#FFFFFF" }, // Netherlands
+  USA: { primary: "#3C3B6E", secondary: "#B22234" }  // USA
 };
 
 export const TEAM_LOGOS = {
-  MI: "Mumbai_Indians.svg",
-  CSK: "Chennai_Super_Kings.svg",
-  RCB: "Royal_Challengers_Bengaluru.svg",
-  KKR: "Kolkata_Knight_Riders.svg",
-  SRH: "Sunrisers_Hyderabad.svg",
-  PBKS: "Punjab_Kings.svg",
-  DC: "Delhi_Capitals.svg",
-  RR: "Rajasthan_Royals.svg",
-  GT: "Gujarat_Titans.svg",
-  LSG: "Lucknow_Super_Giants.svg"
+  ARG: "ar",
+  BRA: "br",
+  FRA: "fr",
+  GER: "de",
+  ENG: "gb-eng",
+  ESP: "es",
+  POR: "pt",
+  ITA: "it",
+  NED: "nl",
+  USA: "us"
+};
+
+export const TEAM_ALIASES = {
+  "ARGENTINA": "ARG",
+  "BRAZIL": "BRA",
+  "FRANCE": "FRA",
+  "GERMANY": "GER",
+  "ENGLAND": "ENG",
+  "SPAIN": "ESP",
+  "PORTUGAL": "POR",
+  "ITALY": "ITA",
+  "NETHERLANDS": "NED",
+  "USA": "USA",
+  "UNITED STATES": "USA"
+};
+
+export const getTeamCode = (name) => {
+  if (!name) return null;
+  const clean = String(name).toUpperCase().trim();
+  if (TEAM_ALIASES[clean]) return TEAM_ALIASES[clean];
+  for (const code in TEAM_COLORS) {
+    if (clean === code || clean.startsWith(code + " ")) return code;
+  }
+  return null;
 };
 
 export const getTeamLogoPath = (name) => {
-  if (!name) return null;
-  const clean = String(name).toUpperCase().trim();
-  for (const code in TEAM_LOGOS) {
-    if (clean === code || clean.startsWith(code + " ") || clean.includes(" " + code)) {
-      return `./assets/IPL_Logos_SVGs/${TEAM_LOGOS[code]}`;
-    }
+  const code = getTeamCode(name);
+  if (code && TEAM_LOGOS[code]) {
+    return `https://flagcdn.com/w80/${TEAM_LOGOS[code]}.png`;
   }
   return null;
 };
@@ -172,17 +193,6 @@ const getMidColor = (hex1, hex2) => {
   const g = Math.floor((g1 + g2) / 2);
   const b = Math.floor((b1 + b2) / 2);
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
-};
-
-export const getTeamCode = (name) => {
-  if (!name) return null;
-  const clean = String(name).toUpperCase().trim();
-  for (const code in TEAM_COLORS) {
-    if (clean === code || clean.startsWith(code + " ") || clean.includes(" " + code)) {
-      return code;
-    }
-  }
-  return null;
 };
 
 export const applyTeamTheme = (teamA, teamB) => {
